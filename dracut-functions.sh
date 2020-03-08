@@ -76,7 +76,20 @@ find_binary() {
 
 ldconfig_paths()
 {
-    $DRACUT_LDCONFIG ${dracutsysrootdir:+-r ${dracutsysrootdir} -f /etc/ld.so.conf} -pN 2>/dev/null | grep -E -v '/(lib|lib64|usr/lib|usr/lib64)/[^/]*$' | sed -n 's,.* => \(.*\)/.*,\1,p' | sort | uniq
+    local gccpath
+
+    if type -P gcc-config &>/dev/null; then
+        gccpath=$(gcc-config -c)
+        gccpath=/usr/lib/gcc/${gccpath%-*}/${gccpath##*-}
+    fi
+
+    while read -r line; do
+        if [[ ${line} != /usr/lib/gcc/* || -z ${gccpath} ]]; then
+            echo ${line}
+        elif [[ ${line} == ${gccpath} ]]; then
+            echo ${line}
+        fi
+    done < <($DRACUT_LDCONFIG ${dracutsysrootdir:+-r ${dracutsysrootdir} -f /etc/ld.so.conf} -pN 2>/dev/null | grep -E -v '/(lib|lib64|usr/lib|usr/lib64)/[^/]*$' | sed -n 's,.* => \(.*\)/.*,\1,p' | sort | uniq)
 }
 
 # Version comparision function.  Assumes Linux style version scheme.
