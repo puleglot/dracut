@@ -10,6 +10,9 @@ IMASECDIR="${SECURITYFSDIR}/ima"
 IMACONFIG="${NEWROOT}/etc/sysconfig/ima"
 IMAPOLICY="/etc/sysconfig/ima-policy"
 
+# shellcheck source=modules.d/77integrity/ima-lib.sh
+. /lib/ima-lib.sh
+
 load_ima_policy() {
     # check kernel support for IMA
     if [ ! -e "${IMASECDIR}" ]; then
@@ -19,10 +22,8 @@ load_ima_policy() {
         return 0
     fi
 
-    # override the default configuration
-    # shellcheck disable=SC1090
-    [ -f "${IMACONFIG}" ] \
-        && . "${IMACONFIG}"
+    # override the default policy path
+    read_untrusted_key_value_file "${IMACONFIG}" IMAPOLICY
 
     # set the IMA policy path name
     IMAPOLICYPATH="${NEWROOT}${IMAPOLICY}"

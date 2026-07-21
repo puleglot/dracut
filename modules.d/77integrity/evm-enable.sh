@@ -13,6 +13,9 @@ EVMKEYTYPE="encrypted"
 EVMKEYID=""
 EVM_ACTIVATION_BITS=0
 
+# shellcheck source=modules.d/77integrity/ima-lib.sh
+. /lib/ima-lib.sh
+
 # The following variables can be set in /etc/sysconfig/evm:
 # EVMKEY: path to the symmetric key; defaults to /etc/keys/evm-trusted.blob
 # EVMKEYDESC: Description of the symmetric key; default is 'evm-key'
@@ -23,10 +26,7 @@ EVM_ACTIVATION_BITS=0
 # EVMKEYSDIR: Directory with more x509 certs; default is /etc/keys/evm/
 
 load_evm_key() {
-    # read the configuration from the config file
-    # shellcheck disable=SC1090
-    [ -f "${EVMCONFIG}" ] \
-        && . "${EVMCONFIG}"
+    read_untrusted_key_value_file "${EVMCONFIG}" EVMKEY EVMKEYDESC EVMKEYTYPE EVMX509 EVMKEYSDIR EVM_ACTIVATION_BITS
 
     # override the EVM key path name from the 'evmkey=' parameter in the kernel
     # command line
@@ -53,7 +53,7 @@ load_evm_key() {
     read -r KEYBLOB < "${EVMKEYPATH}"
 
     # load the EVM encrypted key
-    if ! EVMKEYID=$(keyctl add ${EVMKEYTYPE} ${EVMKEYDESC} "load ${KEYBLOB}" @u); then
+    if ! EVMKEYID=$(keyctl add "${EVMKEYTYPE}" "${EVMKEYDESC}" "load ${KEYBLOB}" @u); then
         info "integrity: failed to load the EVM encrypted key: ${EVMKEYDESC}"
         return 1
     fi

@@ -4,14 +4,14 @@ SECURITYFSDIR="/sys/kernel/security"
 IMASECDIR="${SECURITYFSDIR}/ima"
 IMACONFIG="${NEWROOT}/etc/sysconfig/ima"
 
+# shellcheck source=modules.d/77integrity/ima-lib.sh
+. /lib/ima-lib.sh
+
 load_x509_keys() {
     KEYRING_ID=$1
 
-    # override the default configuration
-    if [ -f "${IMACONFIG}" ]; then
-        # shellcheck disable=SC1090
-        . "${IMACONFIG}"
-    fi
+    # override the default key directory
+    read_untrusted_key_value_file "${IMACONFIG}" IMAKEYSDIR
 
     if [ -z "${IMAKEYSDIR}" ]; then
         IMAKEYSDIR="/etc/keys/ima"

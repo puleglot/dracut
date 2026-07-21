@@ -14,6 +14,7 @@ depends() {
 # called by dracut
 install() {
     inst_multiple evmctl keyctl
+    inst_simple "$moddir/ima-lib.sh" "/lib/ima-lib.sh"
     inst_hook pre-pivot 61 "$moddir/evm-enable.sh"
     inst_hook pre-pivot 61 "$moddir/ima-keys-load.sh"
     inst_hook pre-pivot 62 "$moddir/ima-policy-load.sh"
