@@ -10,11 +10,12 @@ MASTERKEYSCONFIG="${NEWROOT}/etc/sysconfig/masterkey"
 MULTIKERNELMODE="NO"
 PCRLOCKNUM=11
 
+# shellcheck source=modules.d/76masterkey/masterkey-lib.sh
+. /lib/masterkey-lib.sh
+
 load_masterkey() {
-    # read the configuration from the config file
-    # shellcheck disable=SC1090
-    [ -f "${MASTERKEYSCONFIG}" ] \
-        && . "${MASTERKEYSCONFIG}"
+    # read the mutable-root configuration as data
+    read_masterkey_config "${MASTERKEYSCONFIG}"
 
     # override the kernel master key path name from the 'masterkey=' parameter
     # in the kernel command line

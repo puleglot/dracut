@@ -35,8 +35,11 @@ read_untrusted_key_value_file() {
             EVMKEYSDIR) EVMKEYSDIR="${_value}" ;;
             EVM_ACTIVATION_BITS)
                 # This value is used in shell arithmetic below.
-                case "${_value}" in "" | *[!0-9]*) continue ;; esac
-                EVM_ACTIVATION_BITS="${_value}"
+                if isdigit "${_value}"; then
+                    EVM_ACTIVATION_BITS="${_value}"
+                else
+                    EVM_ACTIVATION_BITS=0
+                fi
                 ;;
         esac
     done < "${_file}"

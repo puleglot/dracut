@@ -17,5 +17,6 @@ installkernel() {
 # called by dracut
 install() {
     inst_multiple keyctl uname
+    inst_simple "$moddir/masterkey-lib.sh" "/lib/masterkey-lib.sh"
     inst_hook pre-pivot 60 "$moddir/masterkey.sh"
 }
